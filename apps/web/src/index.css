@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* shadcn/ui tokens (HSL channels) — ivory, walnut, parchment, muted ink, antique gold */
+  :root {
+    --background: 39 60% 96%;
+    --foreground: 22 30% 18%;
+    --muted: 38 47% 90%;
+    --muted-foreground: 37 10% 39%;
+    --ring: 36 35% 52%;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-ivory font-sans text-ink antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+    /* Subtle paper grain */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.23 0 0 0 0 0.16 0 0 0 0 0.12 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  h1, h2, h3, h4 {
+    @apply font-serif font-medium tracking-tight text-walnut;
+  }
+  ::selection {
+    @apply bg-gold-light/60 text-walnut-dark;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-gold ring-offset-2 ring-offset-ivory;
+  }
+  input, select, textarea, button {
+    font: inherit;
+  }
+}
+
+@layer components {
+  /* Frosted glass — used selectively on floating nav, panels, search, quick view and the cart drawer */
+  .glass {
+    @apply border border-white/50 bg-ivory/70 shadow-[0_8px_32px_-12px_rgba(36,25,18,0.35)] backdrop-blur-xl backdrop-saturate-150;
+  }
+  .glass-dark {
+    @apply border border-gold/25 bg-walnut-dark/55 text-ivory shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)] backdrop-blur-xl backdrop-saturate-150;
+  }
+  .glass-emerald {
+    @apply border border-gold/25 bg-emerald-dark/55 text-ivory shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)] backdrop-blur-xl backdrop-saturate-150;
+  }
+  /* Archival texture: fine ruled lines, like a ledger page */
+  .archival-lines {
+    background-image: repeating-linear-gradient(0deg, rgba(128,99,47,0.07) 0 1px, transparent 1px 28px);
+  }
+  /* Exhibition room surfaces (homepage). Built from layered gradients + fine noise so they read
+     as plaster and oiled hardwood at a glance without competing with the photographed objects. */
+  .museum-wall {
+    background-color: #141210;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .45 0 0 0 0 .4 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E"),
+      linear-gradient(180deg, #0d0c0b 0%, #171513 55%, #1b1815 100%);
+  }
+  .museum-floor {
+    background-color: #120d09;
+    background-image:
+      linear-gradient(180deg, rgba(10, 8, 6, 0.85) 0%, rgba(10, 8, 6, 0) 35%),
+      repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0 1px, transparent 1px 11.5%),
+      repeating-linear-gradient(90deg, rgba(92, 62, 38, 0.18) 0 3%, rgba(60, 40, 25, 0.1) 3% 7%, rgba(80, 54, 33, 0.16) 7% 11.5%),
+      linear-gradient(180deg, #1c140e, #0f0b08);
+  }
+  .text-outline-gold {
+    -webkit-text-stroke: 1px rgba(210,183,131,0.35);
+    color: transparent;
+  }
+  .container-site {
+    @apply mx-auto w-full max-w-site px-4 sm:px-6 lg:px-10;
+  }
+  .eyebrow {
+    @apply font-sans text-[11px] font-medium uppercase tracking-caps text-gold-dark;
+  }
+  .rule-gold {
+    @apply h-px w-12 bg-gold;
+  }
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 px-6 text-[13px] font-medium uppercase tracking-[0.14em] transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-forest text-ivory hover:bg-forest-light;
+  }
+  .btn-gold {
+    @apply btn bg-gold text-walnut-dark hover:bg-gold-light;
+  }
+  .btn-outline {
+    @apply btn border border-walnut/30 text-walnut hover:border-walnut hover:bg-walnut hover:text-ivory;
+  }
+  .btn-outline-light {
+    @apply btn border border-ivory/40 text-ivory hover:border-gold-light hover:text-gold-light;
+  }
+  .btn-ghost {
+    @apply btn px-3 text-walnut hover:text-gold-dark;
+  }
+  .link-underline {
+    @apply relative inline-block after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100;
+  }
+  .field-label {
+    @apply mb-1.5 block text-[12px] font-medium uppercase tracking-[0.12em] text-ink-soft;
+  }
+  .field-input {
+    @apply block min-h-[44px] w-full border border-line bg-white/70 px-3.5 py-2.5 text-[15px] text-ink placeholder:text-ink-muted/70 transition-colors focus:border-gold focus:bg-white focus:outline-none focus:ring-1 focus:ring-gold;
+  }
+  .field-input[aria-invalid='true'] {
+    @apply border-danger focus:border-danger focus:ring-danger;
+  }
+  .field-error {
+    @apply mt-1.5 text-[13px] text-danger;
+  }
+  .card {
+    @apply border border-line/80 bg-white/60 shadow-card;
+  }
+  .prose-antique p {
+    @apply mb-4 leading-relaxed text-ink-soft;
+  }
+  .prose-antique h2 {
+    @apply mb-3 mt-10 text-3xl;
+  }
+  .prose-antique h3 {
+    @apply mb-2 mt-6 text-xl;
+  }
+  .prose-antique ul {
+    @apply mb-4 list-disc space-y-1.5 pl-5 text-ink-soft;
+  }
+  .table-admin {
+    @apply w-full text-left text-sm;
+  }
+  .table-admin th {
+    @apply whitespace-nowrap border-b border-line bg-parchment/60 px-4 py-3 text-[11px] font-medium uppercase tracking-[0.12em] text-ink-muted;
+  }
+  .table-admin td {
+    @apply border-b border-line/60 px-4 py-3 align-middle;
+  }
+  .table-admin tbody tr {
+    @apply transition-colors hover:bg-parchment/40;
+  }
+}
+
+@keyframes shimmer-text {
+  to { background-position: 200% center; }
+}
+@keyframes scroll-cue {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(260%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

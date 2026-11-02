@@ -1,0 +1,37 @@
+# Optional: PostgreSQL (and the full app) via Docker.
+#   Database only:  docker compose up -d db      → set DATABASE_URL port to 5432 in .env
+#   Full stack:     docker compose up --build    → http://localhost:4000
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: antiquora
+      POSTGRES_PASSWORD: antiquora
+      POSTGRES_DB: antiquora
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U antiquora"]
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    profiles: ["full"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://antiquora:antiquora@db:5432/antiquora?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in your shell or .env}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-http://localhost:4000}
+      CORS_ORIGINS: ${PUBLIC_SITE_URL:-http://localhost:4000}
+      PAYMENT_PROVIDER: demo
+    ports:
+      - "4000:4000"
+
+volumes:
+  pgdata:

@@ -1,0 +1,32 @@
+{
+  "name": "antiquora",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ANTIQUORA — premium antique & historical artifacts marketplace (demo)",
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "db:local": "node scripts/local-db.mjs",
+    "db:migrate": "npm run migrate --workspace apps/api",
+    "db:seed": "npm run seed --workspace apps/api",
+    "db:reset": "npm run reset --workspace apps/api",
+    "dev": "node scripts/dev.mjs",
+    "dev:api": "npm run dev --workspace apps/api",
+    "dev:web": "npm run dev --workspace apps/web",
+    "build": "npm run build --workspace apps/api && npm run build --workspace apps/web",
+    "typecheck": "npm run typecheck --workspace apps/api && npm run typecheck --workspace apps/web",
+    "test": "npm run test --workspace apps/api && npm run test --workspace apps/web",
+    "test:e2e": "playwright test",
+    "admin:create": "npm run admin:create --workspace apps/api",
+    "start": "npm run start --workspace apps/api"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.2",
+    "embedded-postgres": "17.9.0-beta.16"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
