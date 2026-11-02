@@ -28,7 +28,7 @@ export function createApp() {
   const cfg = config();
   const app = express();
   app.disable('x-powered-by');
-  app.set('trust proxy', 1);
+  app.set('trust proxy', cfg.TRUST_PROXY);
   // HTTPS-only headers would break a plain-HTTP demo deployment, so tie them to the public URL.
   const https = cfg.PUBLIC_SITE_URL.startsWith('https://');
 

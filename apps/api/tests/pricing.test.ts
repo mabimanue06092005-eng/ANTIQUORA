@@ -56,4 +56,13 @@ describe('config', () => {
       loadConfig({ DATABASE_URL: 'postgresql://x', SESSION_SECRET: 'x'.repeat(40), PAYMENT_PROVIDER: 'razorpay' } as NodeJS.ProcessEnv),
     ).toThrow(/RAZORPAY_KEY_ID/);
   });
+
+  it('listens on the host-assigned PORT unless API_PORT is set', () => {
+    const base = { DATABASE_URL: 'postgresql://x', SESSION_SECRET: 'x'.repeat(40) };
+    expect(loadConfig({ ...base } as NodeJS.ProcessEnv).API_PORT).toBe(4000);
+    expect(loadConfig({ ...base, PORT: '10000' } as NodeJS.ProcessEnv).API_PORT).toBe(10000);
+    expect(loadConfig({ ...base, PORT: '10000', API_PORT: '4100' } as NodeJS.ProcessEnv).API_PORT).toBe(4100);
+    expect(loadConfig({ ...base } as NodeJS.ProcessEnv).TRUST_PROXY).toBe(1);
+    expect(loadConfig({ ...base, TRUST_PROXY: '2' } as NodeJS.ProcessEnv).TRUST_PROXY).toBe(2);
+  });
 });

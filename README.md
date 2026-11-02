@@ -96,7 +96,8 @@ The API validates it on start-up and exits with a readable list of problems if a
 | --- | --- | --- |
 | `DATABASE_URL` | yes | PostgreSQL connection string |
 | `SESSION_SECRET` | yes | ≥ 32 chars; signs session-token hashes |
-| `API_PORT` | no | Default `4000` |
+| `API_PORT` | no | Default `4000`, or the host's `PORT` when set |
+| `TRUST_PROXY` | no | Proxy hops in front of Express (default `1`; `2` behind Netlify's proxy + the API host's load balancer) |
 | `CORS_ORIGINS` | no | Comma-separated origins allowed to send cookies |
 | `PUBLIC_SITE_URL` | no | Used for sitemap URLs; `https://…` also enables HSTS |
 | `SESSION_TTL_DAYS` | no | Default 14 |
@@ -335,7 +336,8 @@ The API serves the built storefront from the same origin, so one Node service + 
 1. Provision PostgreSQL (Neon, Supabase, Railway, RDS…) and copy its connection string.
 2. Set environment variables: `NODE_ENV=production`, `DATABASE_URL`, `SESSION_SECRET` (random, 32+ chars),
    `PUBLIC_SITE_URL=https://your-domain`, `CORS_ORIGINS=https://your-domain`, `PAYMENT_PROVIDER=demo`.
-3. Build command: `npm ci && npm run build`
+3. Build command: `npm ci --include=dev && npm run build` (TypeScript, Vite and Prisma are dev dependencies,
+   which `npm ci` skips when `NODE_ENV=production`)
 4. Start command: `npm run migrate --workspace apps/api && npm start`
 5. Once, for demo content: `npm run seed --workspace apps/api -- --force` (wipes and re-seeds demo data).
 6. Create the admin from a one-off shell: `npm run admin:create --workspace apps/api -- --allow-production --email you@domain --password '…'`.
@@ -345,6 +347,27 @@ The API serves the built storefront from the same origin, so one Node service + 
 
 Uploaded admin images are written to `apps/api/uploads/`; on hosts with ephemeral disks, mount a
 persistent volume there (or swap in object storage).
+
+### Deploying: Netlify + API host
+
+Netlify serves only static files, so it hosts the storefront while the API and database run elsewhere.
+The storefront calls the API with relative paths (`/api/…`), so Netlify must proxy them: without that,
+`GET /api/products` returns Netlify's HTML 404 page and the homepage shows *"The museum is momentarily
+closed. Unexpected response from server."*
+
+1. **API host** (e.g. a Render *Web Service* from this repository, root directory empty):
+   - Build: `npm ci --include=dev && npm run build --workspace apps/api`
+   - Start: `npm run migrate --workspace apps/api && npm start`
+   - Env: `NODE_VERSION=22`, `NODE_ENV=production`, `DATABASE_URL`, `SESSION_SECRET`,
+     `PUBLIC_SITE_URL` and `CORS_ORIGINS` = the Netlify URL, `TRUST_PROXY=2`, `PAYMENT_PROVIDER=demo`
+   - Health check path: `/api/health`. Then seed once (step 5 above).
+2. **Netlify:** [`netlify.toml`](netlify.toml) sets the build; leave Base and Package directory empty.
+   Add one environment variable, `API_ORIGIN` = the API's `https://` origin. The build runs
+   [`scripts/netlify-redirects.mjs`](scripts/netlify-redirects.mjs), which writes `_redirects` that proxy
+   `/api/*`, `/uploads/*` and `/sitemap.xml` to it (status 200) and fall back to `index.html`; it fails the
+   build if `API_ORIGIN` is missing, not https, or localhost. Proxying keeps the API on the Netlify origin,
+   so session and CSRF cookies stay first-party.
+3. Check `https://<site>.netlify.app/api/health` returns `{"data":{"status":"ok","database":"up"}}`.
 
 ## Troubleshooting
 

@@ -12,6 +12,9 @@ const schema = z
       .string({ error: 'SESSION_SECRET is required (see .env.example)' })
       .min(32, 'SESSION_SECRET must be at least 32 characters'),
     CORS_ORIGINS: z.string().default('http://localhost:5173'),
+    // Proxies between the visitor and Express (host load balancer = 1; Netlify proxy + host = 2).
+    // Rate limits key on the client IP, so this must match the real number of hops.
+    TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(1),
     PUBLIC_SITE_URL: z.string().url().default('http://localhost:5173'),
     SESSION_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(14),
     PAYMENT_PROVIDER: z.enum(['demo', 'razorpay']).default('demo'),
@@ -36,7 +39,8 @@ const schema = z
 export type Config = z.infer<typeof schema>;
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
-  const parsed = schema.safeParse(env);
+  // Hosts such as Render, Railway and Fly assign the port through PORT.
+  const parsed = schema.safeParse({ ...env, API_PORT: env.API_PORT || env.PORT });
   if (!parsed.success) {
     const lines = parsed.error.issues.map((i) => `  • ${i.path.join('.') || 'env'}: ${i.message}`);
     const err = new Error(`Invalid environment configuration:\n${lines.join('\n')}\n\nCopy .env.example to .env and fill in the values.`);
